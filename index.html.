@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Alma Life — Dunia Impian</title>
+<style>
+*{box-sizing:border-box}
+:root{--ink:#294653;--cream:#fffaf0;--green:#70bd83;--pink:#ff9fbc}
+body{margin:0;background:#d9f4ef;color:var(--ink);font-family:system-ui,-apple-system,sans-serif}
+button{font:inherit;border:0;cursor:pointer;touch-action:manipulation}
+#app{max-width:900px;margin:auto;min-height:100dvh;background:#f8fff7;overflow:hidden}
+header{padding:13px 15px;background:linear-gradient(120deg,#8edfc8,#c8f1cb);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{font-size:20px;font-weight:1000;letter-spacing:-.7px}
+.subtitle{font-size:11px;font-weight:700}
+.day{background:#ffffffb8;border-radius:14px;padding:8px 10px;font-size:12px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:9px;background:#fff}
+.stat{background:#f0f8ed;border-radius:12px;padding:8px 4px;text-align:center;font-size:11px;font-weight:800}
+.stat strong{display:block;font-size:15px;margin-top:3px}
+#scene{display:block;width:100%;height:auto;aspect-ratio:3/2;background:#a9e5dc;touch-action:none}
+.tip{padding:8px 12px;font-size:12px;text-align:center;background:#e7f7df;font-weight:700}
+.panel{padding:12px}
+.panelhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.panelhead h2{margin:0;font-size:17px}
+.small{font-size:11px;color:#6a8586}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.action{border:2px solid #e1eee0;background:white;border-radius:15px;padding:11px 4px;color:var(--ink);font-weight:850;font-size:12px;box-shadow:0 3px 0 #e0e9dc}
+.action:active{transform:translateY(2px);box-shadow:none}
+.action span{display:block;font-size:24px;margin-bottom:4px}
+.action:disabled{opacity:.42}
+.lower{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 12px 12px}
+.card{background:#fff;border:1px solid #e5eee2;border-radius:16px;padding:12px}
+.card h3{margin:0 0 7px;font-size:14px}
+.card p{margin:0;font-size:12px;line-height:1.5}
+.progress{height:7px;background:#e9f0e8;border-radius:8px;overflow:hidden;margin-top:8px}
+.progress div{height:100%;background:#6fc68a;width:0}
+#message{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#294653;color:white;border-radius:14px;padding:12px 17px;font-size:13px;font-weight:750;max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#message.show{opacity:1}
+.controls{display:flex;justify-content:center;gap:8px;align-items:center;padding:3px 12px 14px}
+.pad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,38px);gap:4px}
+.pad button,.interact{background:#dff2e2;border-radius:11px;font-weight:900;color:#345f4b}
+.pad button{font-size:17px}
+.pad .up{grid-column:2;grid-row:1}
+.pad .left{grid-column:1;grid-row:2}
+.pad .down{grid-column:2;grid-row:2}
+.pad .right{grid-column:3;grid-row:2}
+.interact{padding:13px 15px;background:#ffdf9e}
+footer{text-align:center;font-size:10px;padding:14px;color:#72908b}
+@media(min-width:650px){.action{font-size:14px}.action span{font-size:29px}.panel{padding:16px}.stats{gap:10px;padding:12px}.stat{font-size:13px}.stat strong{font-size:18px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+ <div><div class="brand">🌷 ALMA LIFE</div><div class="subtitle">DUNIA IMPIANMU · LIVE YOUR STORY</div></div>
+ <div class="day" id="day">☀️ Hari 1</div>
+</header>
+<div class="stats">
+ <div class="stat">💰 UANG<strong id="money">Rp 500</strong></div>
+ <div class="stat">⚡ ENERGI<strong id="energy">100/100</strong></div>
+ <div class="stat">🌾 PANEN<strong id="harvest">0</strong></div>
+ <div class="stat">⭐ LEVEL<strong id="level">1</strong></div>
+</div>
+<canvas id="scene" width="600" height="400" aria-label="Dunia kartun Alma Life"></canvas>
+<div class="tip" id="tip">🌼 Selamat datang! Jelajahi dunia dan bangun kehidupan impianmu.</div>
+<div class="panel">
+ <div class="panelhead"><h2>✨ Aktivitas</h2><span class="small">Pilih kegiatanmu</span></div>
+ <div class="actions">
+  <button class="action" id="plant"><span>🌱</span>Tanam bibit<br><small>Rp 30</small></button>
+  <button class="action" id="water"><span>💧</span>Siram kebun<br><small>Percepat panen</small></button>
+  <button class="action" id="pick"><span>🧺</span>Panen & jual<br><small>Rp 100/tanaman</small></button>
+  <button class="action" id="work"><span>💼</span>Kerja harian<br><small>+Rp 150</small></button>
+  <button class="action" id="business"><span>🏪</span>Kembangkan usaha<br><small>Rp 400</small></button>
+  <button class="action" id="rest"><span>🛏️</span>Istirahat<br><small>Pulihkan energi</small></button>
+  <button class="action" id="house"><span>🏡</span>Rumah impian<br><small>Rp 1.500</small></button>
+  <button class="action" id="market"><span>🛍️</span>Toko bibit<br><small>Beli persediaan</small></button>
+  <button class="action" id="next"><span>🌅</span>Akhiri hari<br><small>Hari berikutnya</small></button>
+ </div>
+</div>
+<div class="lower">
+ <div class="card">
+  <h3>🌻 Kebun Alma</h3>
+  <p id="farmText">Lahan masih kosong. Tanam bibit pertamamu!</p>
+  <div class="progress"><div id="growth"></div></div>
+ </div>
+ <div class="card">
+  <h3>🎯 Misi kehidupan</h3>
+  <p id="mission">Kumpulkan uang dan tanam 3 tanaman.</p>
+  <div class="progress"><div id="missionBar"></div></div>
+ </div>
+</div>
+<div class="panel" style="padding-top:0">
+ <div class="panelhead"><h2>🕹️ Jelajahi dunia</h2><span class="small">Dekati area kebun dan rumah</span></div>
+ <div class="controls">
+  <div class="pad">
+   <button class="up" data-move="up" aria-label="Atas">▲</button>
+   <button class="left" data-move="left" aria-label="Kiri">◀</button>
+   <button class="down" data-move="down" aria-label="Bawah">▼</button>
+   <button class="right" data-move="right" aria-label="Kanan">▶</button>
+  </div>
+  <button class="interact" id="explore">🔎 Jelajahi</button>
+ </div>
+</div>
+<footer>ALMA LIFE · Dunia kecil, mimpi besar 🌈<br>Progres tersimpan otomatis di perangkat ini.</footer>
+</div>
+<div id="message"></div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const canvas=$('scene'),ctx=canvas.getContext('2d');
+const initial=()=>({money:500,energy:100,day:1,level:1,x:300,y:270,plants:[],harvest:0,xp:0,business:0,house:false,seeds:5,water:3,worked:0});
+let s;
+try{s={...initial(),...JSON.parse(localStorage.getItem('almaLifeSave')||'{}')};}catch(e){s=initial()}
+let toastTimer;
+function save(){try{localStorage.setItem('almaLifeSave',JSON.stringify(s))}catch(e){}}
+function say(t){$('message').textContent=t;$('message').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('message').classList.remove('show'),2300)}
+function money(n){return 'Rp '+Math.floor(n).toLocaleString('id-ID')}
+function spend(n){if(s.money<n){say('Uangmu belum cukup. Cari uang lewat kerja atau panen ya!');return false}s.money-=n;return true}
+function gainXp(n){s.xp+=n;while(s.xp>=s.level*100){s.xp-=s.level*100;s.level++;say('🎉 Naik level! Kamu sekarang level '+s.level+'!')}}
+function spendEnergy(n){if(s.energy<n){say('Energi habis! Istirahat dulu ya 🌙');return false}s.energy-=n;return true}
+function update(){
+ $('money').textContent=money(s.money);$('energy').textContent=s.energy+'/100';
+ $('harvest').textContent=s.harvest;$('level').textContent=s.level;$('day').textContent='☀️ Hari '+s.day;
+ $('farmText').textContent=s.plants.length?`${s.plants.filter(p=>p.growth>=100).length} siap panen · ${s.plants.length} tanaman tumbuh`:'Lahan masih kosong. Tanam bibit pertamamu!';
+ $('growth').style.width=(s.plants.length?s.plants.reduce((a,p)=>a+p.growth,0)/s.plants.length:0)+'%';
+ $('mission').textContent=s.harvest>=3?'Misi selesai! Kamu mulai jadi petani sukses!':`Panen 3 tanaman (${s.harvest}/3).`;
+ $('missionBar').style.width=Math.min(100,s.harvest/3*100)+'%';
+ $('plant').disabled=!s.seeds||s.plants.length>=6;
+ $('water').disabled=!s.water||!s.plants.some(p=>p.growth<100);
+ $('pick').disabled=!s.plants.some(p=>p.growth>=100);
+ $('house').querySelector('small').textContent=s.house?'Sudah dimiliki':'Rp 1.500';
+ $('business').querySelector('small').textContent=s.business?'Usaha level '+s.business:'Rp 400';
+ draw();save()
+}
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function tree(x,y,sc=1){
+ ctx.fillStyle='#a8d58b';ctx.beginPath();ctx.ellipse(x,y+12*sc,18*sc,7*sc,0,0,7);ctx.fill();
+ rounded(x-3*sc,y-1*sc,6*sc,18*sc,3,'#9c714e');
+ for(const [dx,dy,r,c] of [[0,-13,13,'#69bd80'],[-9,-5,9,'#83cf8a'],[9,-5,10,'#55b878']]){
+ ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+dx*sc,y+dy*sc,r*sc,0,7);ctx.fill()}
+}
+function house(x,y){
+ rounded(x-43,y-1,86,57,5,'#ffe8ba');
+ ctx.fillStyle='#ee8c91';ctx.beginPath();ctx.moveTo(x-51,y+3);ctx.lineTo(x,y-36);ctx.lineTo(x+51,y+3);ctx.closePath();ctx.fill();
+ rounded(x-10,y+24,20,32,4,'#b67b61');rounded(x-33,y+11,17,16,3,'#8ddbd9');rounded(x+16,y+11,17,16,3,'#8ddbd9');
+ rounded(x-6,y-24,12,13,3,'#fff3d0');
+}
+function draw(){
+ const w=600,h=400;ctx.clearRect(0,0,w,h);
+ // sky and distant hills
+ let g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,'#9cdef2');g.addColorStop(1,'#d7f6e7');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle='#fdf7d7';ctx.beginPath();ctx.arc(500,48,24,0,7);ctx.fill();
+ for(let i=0;i<4;i++){ctx.fillStyle=i%2?'#a7dcb5':'#8bd0aa';ctx.beginPath();ctx.ellipse(i*190-10,160,150,75,0,0,7);ctx.fill()}
+ ctx.fillStyle='#8bd39b';ctx.fillRect(0,165,w,235);
+ // winding path
+ ctx.fillStyle='#f4dcb1';ctx.beginPath();ctx.moveTo(0,290);ctx.quadraticCurveTo(130,250,235,290);ctx.quadraticCurveTo(360,330,600,250);ctx.lineTo(600,306);ctx.quadraticCurveTo(370,375,220,320);ctx.quadraticCurveTo(120,290,0,330);ctx.fill();
+ // river
+ ctx.fillStyle='#75d2df';ctx.beginPath();ctx.moveTo(0,190);ctx.quadraticCurveTo(80,180,105,220);ctx.lineTo(120,255);ctx.lineTo(85,266);ctx.quadraticCurveTo(62,219,0,232);ctx.fill();
+ // house area
+ house(485,156);
+ ctx.fillStyle='#527d55';ctx.font='bold 11px system-ui';ctx.fillText(s.house?'🏡 RUMAH ALMA':'🏠 RUMAH IMPIAN',445,112);
+ // shop
+ rounded(27,174,105,57,7,'#f9d7e3');ctx.fillStyle='#dc8ea9';ctx.beginPath();ctx.moveTo(20,177);ctx.lineTo(78,143);ctx.lineTo(139,177);ctx.fill();
+ rounded(38,182,82,16,4,'#fff4d4');ctx.fillStyle='#a85f7d';ctx.font='bold 10px system-ui';ctx.fillText(s.business?'ALMA MART':'TOKO KECIL',45,193);
+ rounded(45,204,24,23,3,'#a1dcd2');rounded(82,204,24,23,3,'#b67d5b');
+ // fence and farm
+ rounded(170,182,244,111,7,'#b9dc92');ctx.strokeStyle='#9bcb80';ctx.lineWidth=3;
+ for(let x=180;x<410;x+=18){ctx.beginPath();ctx.moveTo(x,184);ctx.lineTo(x,292);ctx.stroke()}
+ for(let y=192;y<292;y+=22){ctx.beginPath();ctx.moveTo(172,y);ctx.lineTo(413,y);ctx.stroke()}
+ ctx.fillStyle='#a5d77f';ctx.fillRect(180,190,225,94);
+ for(let i=0;i<6;i++){
+ const x=194+(i%3)*72,y=208+Math.floor(i/3)*42,p=s.plants[i];
+ rounded(x-19,y-10,38,26,7,'#a77c55');
+ ctx.fillStyle='#8c603f';ctx.fillRect(x-16,y-6,32,18);
+ if(p){
+ let height=6+p.growth*.13;
+ ctx.strokeStyle='#358c54';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+4);ctx.lineTo(x,y+4-height);ctx.stroke();
+ ctx.fillStyle=p.growth>=100?'#ffb64f':'#66c879';
+ ctx.beginPath();ctx.ellipse(x-5,y-height,7,4,-.5,0,7);ctx.ellipse(x+5,y-height-2,7,4,.5,0,7);ctx.fill();
+ if(p.growth>=100){ctx.fillStyle='#f6d568';ctx.beginPath();ctx.arc(x,y-height-4,5,0,7);ctx.fill()}
+ }else{ctx.fillStyle='#f3e5c7';ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
+ }
+ ctx.fillStyle='#527d55';ctx.font='bold 11px system-ui';ctx.fillText('🌱 KEBUN ALMA',235,306);
+ tree(153,151,.9);tree(438,206,.9);tree(562,226,1.1);tree(146,337,1.1);tree(420,337,.8);
+ // flowers
+ for(let i=0;i<28;i++){let x=(i*79+21)%590,y=175+(i*43)%210;ctx.fillStyle=['#ffb3cc','#fff0a6','#fff'][i%3];ctx.beginPath();ctx.arc(x,y,2.3,0,7);ctx.fill()}
+ // character with shadow
+ ctx.fillStyle='#579d70';ctx.beginPath();ctx.ellipse(s.x,s.y+14,14,5,0,0,7);ctx.fill();
+ // legs
+ rounded(s.x-8,s.y+3,6,12,3,'#5574a8');rounded(s.x+2,s.y+3,6,12,3,'#5574a8');
+ // body
+ rounded(s.x-11,s.y-13,22,22,7,'#ffb0c7');
+ // head
+ ctx.fillStyle='#eab28e';ctx.beginPath();ctx.arc(s.x,s.y-22,12,0,7);ctx.fill();
+ // hair
+ ctx.fillStyle='#65443e';ctx.beginPath();ctx.arc(s.x,s.y-26,12,Math.PI,Math.PI*2);ctx.lineTo(s.x+12,s.y-18);ctx.lineTo(s.x+7,s.y-15);ctx.lineTo(s.x-12,s.y-18);ctx.fill();
+ ctx.fillStyle='#394c56';ctx.beginPath();ctx.arc(s.x-4,s.y-22,1.3,0,7);ctx.arc(s.x+4,s.y-22,1.3,0,7);ctx.fill();
+ ctx.strokeStyle='#b76b72';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(s.x,s.y-19,3,.2,2.8);ctx.stroke();
+ ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('ALMA',s.x,s.y-39);ctx.textAlign='left';
+ // decorative clouds
+ for(const [x,y] of [[80,45],[260,70],[400,30]]){ctx.fillStyle='#ffffffbd';ctx.beginPath();ctx.arc(x,y,12,0,7);ctx.arc(x+13,y-5,16,0,7);ctx.arc(x+29,y,11,0,7);ctx.fill()}
+}
+function act(id){
+ if(id==='plant'){
+ if(!s.seeds){say('Bibit habis! Beli lagi di toko bibit 🌱');return}
+ if(s.plants.length>=6){say('Kebun penuh. Panen dulu ya!');return}
+ if(!spend(30)||!spendEnergy(5))return;
+ s.seeds--;s.plants.push({growth:0});say('🌱 Bibit tertanam! Siram agar cepat tumbuh.');gainXp(5);
+ }else if(id==='water'){
+ if(!s.water){say('Air habis. Beli persediaan di toko bibit.');return}
+ let p=s.plants.find(p=>p.growth<100);if(!p){say('Tanam bibit dulu ya!');return}
+ if(!spendEnergy(3))return;s.water--;p.growth=Math.min(100,p.growth+45);say('💧 Tanaman disiram! Pertumbuhannya meningkat.');gainXp(4);
+ }else if(id==='pick'){
+ let ready=s.plants.filter(p=>p.growth>=100);if(!ready.length){say('Belum ada yang siap panen. Siram atau akhiri hari.');return}
+ s.plants=s.plants.filter(p=>p.growth<100);s.harvest+=ready.length;
+ let earned=ready.length*100*(1+s.business*.1);s.money+=Math.round(earned);s.energy=Math.max(0,s.energy-5);
+ gainXp(ready.length*15);say('🧺 Panen berhasil! Kamu mendapat '+money(earned)+'.');
+ }else if(id==='work'){
+ if(!spendEnergy(20))return;
+ let earned=150+s.business*20;s.money+=earned;s.worked++;gainXp(15);say('💼 Kerja selesai! Kamu mendapat '+money(earned)+'.');
+ }else if(id==='business'){
+ if(!spend(400))return;s.business++;s.money+=0;gainXp(25);say('🏪 Usahamu berkembang! Pendapatan panen meningkat.');
+ }else if(id==='rest'){
+ s.energy=Math.min(100,s.energy+40);say('🛏️ Kamu beristirahat dan memulihkan energi.');
+ }else if(id==='house'){
+ if(s.house){say('🏡 Kamu sudah punya rumah sendiri!');return}
+ if(!spend(1500))return;s.house=true;gainXp(50);say('🏡 Selamat! Kamu punya rumah impian sendiri!');
+ }else if(id==='market'){
+ if(!spend(100))return;s.seeds+=5;s.water+=3;say('🛍️ Kamu membeli 5 bibit dan 3 persediaan air.');
+ }else if(id==='next'){
+ s.day++;s.energy=100;s.worked=0;
+ s.plants.forEach(p=>p.growth=Math.min(100,p.growth+35));
+ if(s.business)s.money+=s.business*25;
+ say('🌅 Hari baru! Tanaman tumbuh dan energimu pulih.');
+ }
+ update();
+}
+['plant','water','pick','work','business','rest','house','market','next'].forEach(id=>$(id).addEventListener('click',()=>act(id)));
+function move(dir){
+ const step=15;
+ if(dir==='up')s.y-=step;if(dir==='down')s.y+=step;if(dir==='left')s.x-=step;if(dir==='right')s.x+=step;
+ s.x=Math.max(20,Math.min(580,s.x));s.y=Math.max(95,Math.min(375,s.y));draw();save();
+}
+document.querySelectorAll('[data-move]').forEach(b=>{
+ const dir=b.dataset.move;
+ b.addEventListener('click',()=>move(dir));
+ b.addEventListener('pointerdown',e=>{e.preventDefault();move(dir)});
+});
+$('explore').addEventListener('click',()=>{
+ let d=Math.hypot(s.x-300,s.y-240);
+ if(s.x>430&&s.y<220)say(s.house?'🏡 Ini rumahmu, tempat beristirahat!':'🏠 Suatu hari nanti, kamu bisa punya rumah ini!');
+ else if(s.x<145&&s.y<245)say('🏪 Toko kecil! Kamu bisa mengembangkan usaha di sini.');
+ else if(s.x>160&&s.x<420&&s.y<310)say('🌱 Kebunmu! Tanam, siram, lalu panen untuk mencari uang.');
+ else say('🌷 Terus jelajahi dunia dan bangun kehidupan impianmu!');
+});
+document.addEventListener('keydown',e=>{
+ const keys={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};
+ if(keys[e.key]){e.preventDefault();move(keys[e.key])}
+});
+$('tip').textContent='🌈 Dunia Alma menunggumu. Tanam, bekerja, dan wujudkan rumah impian!';
+update();
+})();
+</script>
+</body>
+</html>
